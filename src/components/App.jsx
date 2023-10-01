@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import Form from './Form';
+import Contacts from './Contacts';
 
 export class App extends Component {
   state = {
@@ -9,8 +11,6 @@ export class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    name: '',
-    number: '',
   };
 
   handleName = event => {
@@ -25,9 +25,8 @@ export class App extends Component {
     });
   };
 
-  handleSumbit = event => {
-    event.preventDefault();
-    const { contacts, name, number } = this.state;
+  handleSumbit = (name, number) => {
+    const { contacts } = this.state;
     if (contacts.some(contact => contact.name === name)) {
       alert(`${name} is already in contacts`);
     } else {
@@ -38,26 +37,6 @@ export class App extends Component {
       });
     }
   };
-  handFilter = event => {
-    this.setState({
-      filter: event.target.value,
-    });
-  };
-  handleDelete = contactName => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(
-        contact => contact.name !== contactName
-      ),
-    }));
-  };
-
-  filterNum = () => {
-    const { contacts, filter } = this.state;
-    const filteredContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
-    return filteredContacts;
-  };
 
   handleFilterChange = event => {
     this.setState({
@@ -65,60 +44,37 @@ export class App extends Component {
     });
   };
 
+  handleDeleteContact = contactName => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(
+        contact => contact.name !== contactName
+      ),
+    }));
+  };
+
+  filterContacts = () => {
+    const { contacts, filter } = this.state;
+    return {
+      data: contacts.filter(contact =>
+        contact.name.toLowerCase().includes(filter.toLowerCase())
+      ),
+      filter: filter,
+    };
+  };
+
   render() {
+    const filteredContacts = this.filterContacts();
+
     return (
       <div>
-        <div className="add-input">
-          <p className="name">Name</p>
-          <div>
-            <input
-              onChange={this.handleName}
-              className="inpu"
-              type="text"
-              name="name"
-              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-            />
-          </div>
-          <div>
-            <p className="name">Number</p>
-            <input
-              onChange={this.handleNumber}
-              className="inpu"
-              type="tel"
-              name="number"
-              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-              required
-            />
-          </div>
-          <button className="add" onClick={this.handleSumbit}>
-            add contact
-          </button>
-        </div>
         <div>
-          <p>Contacts</p>
-          <input
-            onChange={this.handleFilterChange}
-            value={this.state.filter}
-            type="text"
-            placeholder="Search contacts"
-          />
-          <ul>
-            {this.state.contacts.map(contact => (
-              <li className="list" key={contact.name}>
-                {contact.name}: {contact.number}
-                <button
-                  className="delete"
-                  onClick={() => this.handleDelete(contact.name)}
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
+          <Form onFormSubmit={this.handleSumbit} />
         </div>
+        <Contacts
+          contacts={filteredContacts}
+          onFilterChange={this.handleFilterChange}
+          onDeleteContact={this.handleDeleteContact}
+        />
       </div>
     );
   }
