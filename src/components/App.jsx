@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import Form from './Form';
-import Contacts from './Contacts';
+import Form from './Form/Form';
+import Contacts from './Contacts/Contacts';
+import { LS_BOOKS_KEY } from 'localcontact/localSto';
 
 export class App extends Component {
   state = {
@@ -61,6 +62,13 @@ export class App extends Component {
       filter: filter,
     };
   };
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.contacts.length !== prevState.contacts.length) {
+      const stringBooks = JSON.stringify(this.state.contacts);
+      localStorage.setItem(LS_BOOKS_KEY, stringBooks);
+    }
+  }
 
   render() {
     const filteredContacts = this.filterContacts();
